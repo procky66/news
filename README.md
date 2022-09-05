@@ -9,11 +9,11 @@ In order to run this API locally, two .env files need to be created:
 **.env.test** with the line:
 
 ```python
-PGDATABASE=nc-news-test
+PGDATABASE=nc_news_test
 ```
 
 **.env.development** with the line:
 
 ```python
-PGDATABASE=nc-news
+PGDATABASE=nc_news
 ```
