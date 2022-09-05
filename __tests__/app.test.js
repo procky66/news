@@ -53,19 +53,74 @@ describe("/api/articles/:article_id", () => {
 					});
 				});
 		});
-		test("status:404, article not found error when passed a valid, but non-existant key", () => {
-			const ARTICLE_ID = 99;
+		test("status:400, bad request error when passed an invalid key", () => {
+			const ARTICLE_ID = "BadKey";
 			return request(app)
 				.get(`/api/articles/${ARTICLE_ID}`)
-				.expect(404)
+				.expect(400)
 				.then(({ body }) => {
-					expect(body.msg).toBe("article not found");
+					expect(body.msg).toBe("bad request");
 				});
 		});
-		test("status:400, bad request error when passed an invalid key", () => {
-			const ARTICLE_ID = 'BadKey';
+	});
+	describe("PATCH", () => {
+		test("status: 200, responds with the updated article object", () => {
+			const ARTICLE_ID = 3;
+			const inc_votes = { inc_votes: 5 };
 			return request(app)
-				.get(`/api/articles/${ARTICLE_ID}`)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(200)
+                .then(({ body }) => {
+					expect(body.article).toEqual({
+						article_id: ARTICLE_ID,
+						title: "Eight pug gifs that remind me of mitch",
+						topic: "mitch",
+						author: "icellusedkars",
+						body: "some gifs",
+						created_at: "2020-11-03T09:12:00.000Z",
+						votes: 5,
+					});
+				});
+		});
+
+		test("status: 200, responds with the updated article object when passed a negative vote count", () => {
+			const ARTICLE_ID = 3;
+			const inc_votes = { inc_votes: -100 };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(200)
+                .then(({ body }) => {
+					expect(body.article).toEqual({
+						article_id: ARTICLE_ID,
+						title: "Eight pug gifs that remind me of mitch",
+						topic: "mitch",
+						author: "icellusedkars",
+						body: "some gifs",
+						created_at: "2020-11-03T09:12:00.000Z",
+						votes: -100,
+					});
+				});
+		});
+
+		test("status:400, bad request error when passed an invalid key", () => {
+			const ARTICLE_ID = "BadKey";
+			const inc_votes = { inc_votes: 99 };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+                .send(inc_votes)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
+				});
+		});
+
+		test("status:400, bad request error when passed a valid key, but invalid body", () => {
+			const ARTICLE_ID = 3;
+			const inc_votes = { inc_votes: 'Z' };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("bad request");
@@ -90,7 +145,7 @@ describe("/api/users", () => {
 							expect.objectContaining({
 								username: expect.any(String),
 								name: expect.any(String),
-                                avatar_url: expect.any(String)
+								avatar_url: expect.any(String),
 							})
 						);
 					});
