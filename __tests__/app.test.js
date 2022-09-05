@@ -53,13 +53,22 @@ describe("/api/articles/:article_id", () => {
 					});
 				});
 		});
-		test("status:404, article not found error when passed an invalid key", () => {
+		test("status:404, article not found error when passed a valid, but non-existant key", () => {
 			const ARTICLE_ID = 99;
 			return request(app)
 				.get(`/api/articles/${ARTICLE_ID}`)
 				.expect(404)
 				.then(({ body }) => {
 					expect(body.msg).toBe("article not found");
+				});
+		});
+		test("status:400, bad request error when passed an invalid key", () => {
+			const ARTICLE_ID = 'BadKey';
+			return request(app)
+				.get(`/api/articles/${ARTICLE_ID}`)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
 				});
 		});
 	});
