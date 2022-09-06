@@ -13,12 +13,6 @@ app.get("/api/users", getUsers);
 app.get("/api/articles/:article_id", getArticleById);
 app.patch("/api/articles/:article_id", patchArticleById);
 
-// app.use((error, request, response, next) => {
-// 	if ((error.code = "22P02")) {
-// 		response.status(400).send({ msg: "bad request" });
-// 	} else next(error);
-// });
-
 app.use((error, request, response, next) => {
 	if (error.status && error.msg) {
 		response.status(error.status).send({ msg: error.msg });

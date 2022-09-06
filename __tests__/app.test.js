@@ -53,7 +53,7 @@ describe("/api/articles/:article_id", () => {
 					});
 				});
 		});
-		test("status:400, bad request error when passed an invalid key", () => {
+		test("status:400, bad request error when passed an invalid article_id", () => {
 			const ARTICLE_ID = "BadKey";
 			return request(app)
 				.get(`/api/articles/${ARTICLE_ID}`)
@@ -104,7 +104,7 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 
-		test("status:400, bad request error when passed an invalid key", () => {
+		test("status:400, bad request error when passed an invalid article_id", () => {
 			const ARTICLE_ID = "BadKey";
 			const inc_votes = { inc_votes: 99 };
 			return request(app)
@@ -116,7 +116,7 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 
-		test("status:400, bad request error when passed a valid key, but invalid body", () => {
+		test("status:400, bad request error when passed a valid article_id, but invalid body", () => {
 			const ARTICLE_ID = 3;
 			const inc_votes = { inc_votes: 'Z' };
 			return request(app)
@@ -128,7 +128,7 @@ describe("/api/articles/:article_id", () => {
 				});
 		});
 
-		test("status:400, bad request error when passed a valid key, and body does not contain inc_votes property", () => {
+		test("status:400, bad request error when passed a valid article_id, and body does not contain inc_votes property", () => {
 			const ARTICLE_ID = 3;
 			const no_inc_votes = { random: 'Z' };
 			return request(app)
