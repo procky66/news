@@ -53,22 +53,102 @@ describe("/api/articles/:article_id", () => {
 					});
 				});
 		});
-		test("status:404, article not found error when passed a valid, but non-existant key", () => {
-			const ARTICLE_ID = 99;
-			return request(app)
-				.get(`/api/articles/${ARTICLE_ID}`)
-				.expect(404)
-				.then(({ body }) => {
-					expect(body.msg).toBe("article not found");
-				});
-		});
-		test("status:400, bad request error when passed an invalid key", () => {
-			const ARTICLE_ID = 'BadKey';
+		test("status:400, bad request error when passed an invalid article_id", () => {
+			const ARTICLE_ID = "BadKey";
 			return request(app)
 				.get(`/api/articles/${ARTICLE_ID}`)
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("bad request");
+				});
+		});
+	});
+	describe("PATCH", () => {
+		test("status: 200, responds with the updated article object", () => {
+			const ARTICLE_ID = 3;
+			const inc_votes = { inc_votes: 5 };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(200)
+                .then(({ body }) => {
+					expect(body.article).toEqual({
+						article_id: ARTICLE_ID,
+						title: "Eight pug gifs that remind me of mitch",
+						topic: "mitch",
+						author: "icellusedkars",
+						body: "some gifs",
+						created_at: "2020-11-03T09:12:00.000Z",
+						votes: 5,
+					});
+				});
+		});
+
+		test("status: 200, responds with the updated article object when passed a negative vote count", () => {
+			const ARTICLE_ID = 3;
+			const inc_votes = { inc_votes: -100 };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(200)
+                .then(({ body }) => {
+					expect(body.article).toEqual({
+						article_id: ARTICLE_ID,
+						title: "Eight pug gifs that remind me of mitch",
+						topic: "mitch",
+						author: "icellusedkars",
+						body: "some gifs",
+						created_at: "2020-11-03T09:12:00.000Z",
+						votes: -100,
+					});
+				});
+		});
+
+		test("status:400, bad request error when passed an invalid article_id", () => {
+			const ARTICLE_ID = "BadKey";
+			const inc_votes = { inc_votes: 99 };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+                .send(inc_votes)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
+				});
+		});
+
+		test("status:400, bad request error when passed a valid article_id, but invalid body", () => {
+			const ARTICLE_ID = 3;
+			const inc_votes = { inc_votes: 'Z' };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
+				});
+		});
+
+		test("status:400, bad request error when passed a valid article_id, and body does not contain inc_votes property", () => {
+			const ARTICLE_ID = 3;
+			const no_inc_votes = { random: 'Z' };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(no_inc_votes)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
+				});
+		});
+
+		test("status:404, article not found", () => {
+			const ARTICLE_ID = 99;
+			const inc_votes = { inc_votes: 7 };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("article not found");
 				});
 		});
 	});
@@ -90,7 +170,7 @@ describe("/api/users", () => {
 							expect.objectContaining({
 								username: expect.any(String),
 								name: expect.any(String),
-                                avatar_url: expect.any(String)
+								avatar_url: expect.any(String),
 							})
 						);
 					});
