@@ -139,6 +139,18 @@ describe("/api/articles/:article_id", () => {
 					expect(body.msg).toBe("bad request");
 				});
 		});
+
+		test("status:404, article not found", () => {
+			const ARTICLE_ID = 99;
+			const inc_votes = { inc_votes: 7 };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("article not found");
+				});
+		});
 	});
 });
 
