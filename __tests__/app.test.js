@@ -63,6 +63,15 @@ describe("/api/articles/:article_id", () => {
 					expect(body.article.comment_count).toBe(11);
 				});
 		});
+		test("status:200, article has comment_count 0 if no comments for this article", () => {
+			const ARTICLE_ID = 12;
+			return request(app)
+				.get(`/api/articles/${ARTICLE_ID}`)
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.article.comment_count).toBe(0);
+				});
+		});
 		test("status:400, bad request error when passed an invalid article_id", () => {
 			const ARTICLE_ID = "BadKey";
 			return request(app)
