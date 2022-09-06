@@ -50,7 +50,17 @@ describe("/api/articles/:article_id", () => {
 						body: "some gifs",
 						created_at: "2020-11-03T09:12:00.000Z",
 						votes: 0,
+						comment_count: 2,
 					});
+				});
+		});
+		test("status:200, article has comment_count matching number of comments for this article", () => {
+			const ARTICLE_ID = 1;
+			return request(app)
+				.get(`/api/articles/${ARTICLE_ID}`)
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.article.comment_count).toBe(11);
 				});
 		});
 		test("status:400, bad request error when passed an invalid article_id", () => {
@@ -71,7 +81,7 @@ describe("/api/articles/:article_id", () => {
 				.patch(`/api/articles/${ARTICLE_ID}`)
 				.send(inc_votes)
 				.expect(200)
-                .then(({ body }) => {
+				.then(({ body }) => {
 					expect(body.article).toEqual({
 						article_id: ARTICLE_ID,
 						title: "Eight pug gifs that remind me of mitch",
@@ -91,7 +101,7 @@ describe("/api/articles/:article_id", () => {
 				.patch(`/api/articles/${ARTICLE_ID}`)
 				.send(inc_votes)
 				.expect(200)
-                .then(({ body }) => {
+				.then(({ body }) => {
 					expect(body.article).toEqual({
 						article_id: ARTICLE_ID,
 						title: "Eight pug gifs that remind me of mitch",
@@ -109,7 +119,7 @@ describe("/api/articles/:article_id", () => {
 			const inc_votes = { inc_votes: 99 };
 			return request(app)
 				.patch(`/api/articles/${ARTICLE_ID}`)
-                .send(inc_votes)
+				.send(inc_votes)
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("bad request");
@@ -118,7 +128,7 @@ describe("/api/articles/:article_id", () => {
 
 		test("status:400, bad request error when passed a valid article_id, but invalid body", () => {
 			const ARTICLE_ID = 3;
-			const inc_votes = { inc_votes: 'Z' };
+			const inc_votes = { inc_votes: "Z" };
 			return request(app)
 				.patch(`/api/articles/${ARTICLE_ID}`)
 				.send(inc_votes)
@@ -130,7 +140,7 @@ describe("/api/articles/:article_id", () => {
 
 		test("status:400, bad request error when passed a valid article_id, and body does not contain inc_votes property", () => {
 			const ARTICLE_ID = 3;
-			const no_inc_votes = { random: 'Z' };
+			const no_inc_votes = { random: "Z" };
 			return request(app)
 				.patch(`/api/articles/${ARTICLE_ID}`)
 				.send(no_inc_votes)
