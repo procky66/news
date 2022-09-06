@@ -121,6 +121,19 @@ describe("/api/articles/:article_id", () => {
 			const inc_votes = { inc_votes: 'Z' };
 			return request(app)
 				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(inc_votes)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
+				});
+		});
+
+		test("status:400, bad request error when passed a valid key, and body does not contain inc_votes property", () => {
+			const ARTICLE_ID = 3;
+			const no_inc_votes = { random: 'Z' };
+			return request(app)
+				.patch(`/api/articles/${ARTICLE_ID}`)
+				.send(no_inc_votes)
 				.expect(400)
 				.then(({ body }) => {
 					expect(body.msg).toBe("bad request");
