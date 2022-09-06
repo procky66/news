@@ -1,5 +1,23 @@
 const db = require("../connection");
 
+exports.fetchArticles = (topic) => {
+	let whereClause = "";
+	const queryParams = [];
+	
+	if(topic){
+		whereClause += `WHERE topic = $1`
+		queryParams.push(topic)
+	}
+
+	const queryStr = `SELECT articles.*, COUNT(comments.*)::INT AS "comment_count"
+	FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id 
+	${whereClause}
+	GROUP BY articles.article_id
+	ORDER BY articles.created_at DESC;`;
+
+	return db.query(queryStr, queryParams).then(results => results.rows);
+};
+
 exports.fetchArticleById = article_id => {
 	return db
 		.query(
