@@ -106,7 +106,7 @@ describe("/api/articles", () => {
 			return request(app)
 				.get("/api/articles?topic=nogood")
 				.expect(404)
-				.then(({body}) => {
+				.then(({ body }) => {
 					expect(body.msg).toBe("topic not found");
 				});
 		});
@@ -252,6 +252,54 @@ describe("/api/articles/:article_id", () => {
 	});
 });
 
+describe("/api/articles/:article_id/comments", () => {
+	describe("GET", () => {
+		test("status:200, responds with an array of comments for a valid article", () => {
+			return request(app)
+				.get("/api/articles/1/comments")
+				.expect(200)
+				.then(response => {
+					const { comments } = response.body;
+					expect(comments).toBeInstanceOf(Array);
+					expect(comments).toHaveLength(11);
+
+					comments.forEach(comment => {
+						expect(comment).toEqual(
+							expect.objectContaining({
+								comment_id: expect.any(Number),
+								body: expect.any(String),
+								article_id: expect.any(Number),
+								author: expect.any(String),
+								votes: expect.any(Number),
+								created_at: expect.any(String),
+							})
+						);
+					});
+				});
+		});
+
+		test("status:200, responds with an empty array for a valid article with no comments", () => {
+			const ARTICLE_ID = "12";
+			return request(app)
+				.get(`/api/articles/${ARTICLE_ID}/comments`)
+				.expect(200)
+				.then(response => {
+					const { comments } = response.body;
+					expect(comments).toEqual([]);
+				});
+		});
+
+		test("status:400, bad request error when passed an invalid article_id", () => {
+			const ARTICLE_ID = "BadKey";
+			return request(app)
+				.get(`/api/articles/${ARTICLE_ID}/comments`)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
+				});
+		});
+	});
+});
 describe("/api/users", () => {
 	describe("GET", () => {
 		test("status:200, responds with an array of users", () => {

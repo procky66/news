@@ -1,5 +1,5 @@
 const db = require("../connection");
-const { fetchArticleById, updateArticleById, fetchArticles } = require("../models/articles");
+const { fetchArticleById, updateArticleById, fetchArticles, fetchCommentsByArticleId } = require("../models/articles");
 
 exports.getArticles = (req, res, next) => {
 	const {topic} = req.query;
@@ -17,6 +17,15 @@ exports.getArticleById = (req, res, next) => {
 	fetchArticleById(article_id)
 		.then(article => {
 			res.status(200).send({ article });
+		})
+		.catch(err => next(err));
+};
+
+exports.getCommentsByArticleId = (req, res, next) => {
+	const { article_id } = req.params;
+	fetchCommentsByArticleId(article_id)
+		.then(comments => {
+			res.status(200).send({ comments });
 		})
 		.catch(err => next(err));
 };
