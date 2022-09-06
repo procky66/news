@@ -16,7 +16,7 @@ exports.fetchArticles = topic => {
 	ORDER BY articles.created_at DESC;`;
 
 	return db.query(queryStr, queryParams).then(async results => {
-		if (topic) {
+		if (topic && results.rows.length === 0) {
 			const check = await db.query(`SELECT * FROM topics WHERE slug = $1;`, [
 				topic,
 			]);
