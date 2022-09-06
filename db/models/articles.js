@@ -1,12 +1,12 @@
 const db = require("../connection");
 
-exports.fetchArticles = (topic) => {
+exports.fetchArticles = topic => {
 	let whereClause = "";
 	const queryParams = [];
-	
-	if(topic){
-		whereClause += `WHERE topic = $1`
-		queryParams.push(topic)
+
+	if (topic) {
+		whereClause += `WHERE topic = $1`;
+		queryParams.push(topic);
 	}
 
 	const queryStr = `SELECT articles.*, COUNT(comments.*)::INT AS "comment_count"
@@ -15,7 +15,18 @@ exports.fetchArticles = (topic) => {
 	GROUP BY articles.article_id
 	ORDER BY articles.created_at DESC;`;
 
-	return db.query(queryStr, queryParams).then(results => results.rows);
+	return db.query(queryStr, queryParams).then(async results => {
+		if (topic) {
+			const check = await db.query(`SELECT * FROM topics WHERE slug = $1;`, [
+				topic,
+			]);
+
+			if (check.rows.length === 0) {
+				return Promise.reject({ status: 404, msg: "topic not found" });
+			}
+		}
+		return results.rows;
+	});
 };
 
 exports.fetchArticleById = article_id => {

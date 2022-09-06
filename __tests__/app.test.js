@@ -91,6 +91,25 @@ describe("/api/articles", () => {
 					});
 				});
 		});
+
+		test("status:200, responds with an empty array if no articles exist for a valid topic", () => {
+			return request(app)
+				.get("/api/articles?topic=paper")
+				.expect(200)
+				.then(response => {
+					const { articles } = response.body;
+					expect(articles).toEqual([]);
+				});
+		});
+
+		test("status:404, topic not found for an invalid topic", () => {
+			return request(app)
+				.get("/api/articles?topic=nogood")
+				.expect(404)
+				.then(({body}) => {
+					expect(body.msg).toBe("topic not found");
+				});
+		});
 	});
 });
 
