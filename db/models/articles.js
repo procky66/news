@@ -46,6 +46,26 @@ exports.fetchArticleById = article_id => {
 		});
 };
 
+exports.fetchCommentsByArticleId = async article_id => {
+	results = await db
+		.query(
+			`SELECT * FROM comments 
+			WHERE article_id = $1;`,
+			[article_id]
+		)
+		.catch(err => Promise.reject(err));
+	if (results.rows.length === 0) {
+		const check = await db.query(
+			`SELECT * FROM articles WHERE article_id = $1;`,
+			[article_id]
+		);
+		if (check.rows.length === 0) {
+			return Promise.reject({ status: 404, msg: "article not found" });
+		}
+	}
+	return results.rows;
+};
+
 exports.updateArticleById = (article_id, inc_votes) => {
 	return db
 		.query(
