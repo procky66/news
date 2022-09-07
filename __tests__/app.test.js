@@ -298,6 +298,16 @@ describe("/api/articles/:article_id/comments", () => {
 					expect(body.msg).toBe("bad request");
 				});
 		});
+
+		test("status:404, not found error when passed an valid article_id which is not found", () => {
+			const ARTICLE_ID = 99;
+			return request(app)
+				.get(`/api/articles/${ARTICLE_ID}/comments`)
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("article not found");
+				});
+		});
 	});
 });
 describe("/api/users", () => {
