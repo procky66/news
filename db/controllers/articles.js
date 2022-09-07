@@ -2,9 +2,8 @@ const db = require("../connection");
 const { fetchArticleById, updateArticleById, fetchArticles, fetchCommentsByArticleId } = require("../models/articles");
 
 exports.getArticles = (req, res, next) => {
-	const {topic} = req.query;
-
-	fetchArticles(topic)
+	const {topic,sorted_by, order} = req.query;
+	fetchArticles(topic, sorted_by, order)
 		.then(articles => {
 			res.status(200).send({ articles });
 		})

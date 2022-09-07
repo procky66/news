@@ -1,6 +1,14 @@
 const db = require("../connection");
 
-exports.fetchArticles = topic => {
+exports.fetchArticles = (topic, sorted_by = "created_at", order = "desc") => {
+	const validSortColumns = ["article_id","title","topic","author","body","created_at","votes"]
+	const validOrderTerms = ["asc", "desc"]
+
+	if(!validSortColumns.includes(sorted_by) || !validOrderTerms.includes(order)){
+		return Promise.reject({status:400, msg: "invalid sort criteria"})
+	}
+	const orderClause = `ORDER BY ${sorted_by} ${order}`
+
 	let whereClause = "";
 	const queryParams = [];
 
@@ -13,7 +21,7 @@ exports.fetchArticles = topic => {
 	FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id 
 	${whereClause}
 	GROUP BY articles.article_id
-	ORDER BY articles.created_at DESC;`;
+	${orderClause};`;
 
 	return db.query(queryStr, queryParams).then(async results => {
 		if (topic && results.rows.length === 0) {

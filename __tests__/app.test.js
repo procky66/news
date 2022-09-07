@@ -62,7 +62,7 @@ describe("/api/articles", () => {
 				});
 		});
 
-		test("status:200, responds with an array of articles sorted by date in descending order", () => {
+		test("status:200, responds with an array of articles sorted by date in descending order (default sorted_by = created_at, default order = desc)", () => {
 			return request(app)
 				.get("/api/articles")
 				.expect(200)
@@ -75,6 +75,36 @@ describe("/api/articles", () => {
 					});
 				});
 		});
+
+		test("status:200, responds with an array of articles sorted by the title in ascending order'", ()=>{
+			const sorted_by = "title";
+			const order = "asc";
+			return request(app).get(`/api/articles?sorted_by=${sorted_by}&order=${order}`).expect(200).then(response =>{
+				const {articles} = response.body;
+
+				expect(articles).toBeSortedBy("title",{descending: false});
+			})
+		})
+
+		test("status:200, responds with an array of articles sorted by the topic in descending order'", ()=>{
+			const sorted_by = "topic";
+			const order = "desc";
+			return request(app).get(`/api/articles?sorted_by=${sorted_by}&order=${order}`).expect(200).then(response =>{
+				const {articles} = response.body;
+
+				expect(articles).toBeSortedBy("topic",{descending: true});
+			})
+		})
+
+		test("status:200, responds with an array of articles sorted by the article_id in descending order'", ()=>{
+			const sorted_by = "article_id";
+			const order = "desc";
+			return request(app).get(`/api/articles?sorted_by=${sorted_by}&order=${order}`).expect(200).then(response =>{
+				const {articles} = response.body;
+
+				expect(articles).toBeSortedBy("article_id",{descending: true});
+			})
+		})
 
 		test("status:200, responds with an array of articles which match the topic provided by a query of topic", () => {
 			return request(app)
@@ -109,6 +139,22 @@ describe("/api/articles", () => {
 				.then(({ body }) => {
 					expect(body.msg).toBe("topic not found");
 				});
+		});
+
+		test("status:400, bad request for invalid sort criteria", () => {
+			return request(app)
+				.get("/api/articles?sorted_by=nogood")
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("invalid sort criteria");
+				});
+
+			return request(app)
+			.get("/api/articles?sorted_by=title&order=nogood")
+			.expect(400)
+			.then(({ body }) => {
+				expect(body.msg).toBe("invalid sort criteria");
+			});
 		});
 	});
 });
