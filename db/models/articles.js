@@ -39,7 +39,6 @@ exports.fetchArticles = async (
 	GROUP BY articles.article_id
 	${orderClause};`;
 
-
 	results = await db.query(queryStr, queryParams);
 
 	if (topic && results.rows.length === 0) {
@@ -78,7 +77,7 @@ exports.fetchCommentsByArticleId = async article_id => {
 };
 
 exports.insertCommentOnArticle = async (article_id, author, body) => {
-	if (!body || !author){
+	if (!body || !author) {
 		return Promise.reject({ status: 400, msg: "missing required field" });
 	}
 
@@ -103,4 +102,9 @@ exports.updateArticleById = (article_id, inc_votes) => {
 				return Promise.reject({ status: 404, msg: "article not found" });
 			} else return results.rows[0];
 		});
+};
+
+exports.removeCommentById = async comment_id => {
+	await checkExists("comments","comment_id", comment_id)
+	await db.query("DELETE FROM comments WHERE comment_id = $1", [comment_id]);
 };

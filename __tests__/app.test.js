@@ -76,35 +76,44 @@ describe("/api/articles", () => {
 				});
 		});
 
-		test("status:200, responds with an array of articles sorted by the title in ascending order'", ()=>{
+		test("status:200, responds with an array of articles sorted by the title in ascending order'", () => {
 			const sorted_by = "title";
 			const order = "asc";
-			return request(app).get(`/api/articles?sorted_by=${sorted_by}&order=${order}`).expect(200).then(response =>{
-				const {articles} = response.body;
+			return request(app)
+				.get(`/api/articles?sorted_by=${sorted_by}&order=${order}`)
+				.expect(200)
+				.then(response => {
+					const { articles } = response.body;
 
-				expect(articles).toBeSortedBy("title",{descending: false});
-			})
-		})
+					expect(articles).toBeSortedBy("title", { descending: false });
+				});
+		});
 
-		test("status:200, responds with an array of articles sorted by the topic in descending order'", ()=>{
+		test("status:200, responds with an array of articles sorted by the topic in descending order'", () => {
 			const sorted_by = "topic";
 			const order = "desc";
-			return request(app).get(`/api/articles?sorted_by=${sorted_by}&order=${order}`).expect(200).then(response =>{
-				const {articles} = response.body;
+			return request(app)
+				.get(`/api/articles?sorted_by=${sorted_by}&order=${order}`)
+				.expect(200)
+				.then(response => {
+					const { articles } = response.body;
 
-				expect(articles).toBeSortedBy("topic",{descending: true});
-			})
-		})
+					expect(articles).toBeSortedBy("topic", { descending: true });
+				});
+		});
 
-		test("status:200, responds with an array of articles sorted by the article_id in descending order'", ()=>{
+		test("status:200, responds with an array of articles sorted by the article_id in descending order'", () => {
 			const sorted_by = "article_id";
 			const order = "desc";
-			return request(app).get(`/api/articles?sorted_by=${sorted_by}&order=${order}`).expect(200).then(response =>{
-				const {articles} = response.body;
+			return request(app)
+				.get(`/api/articles?sorted_by=${sorted_by}&order=${order}`)
+				.expect(200)
+				.then(response => {
+					const { articles } = response.body;
 
-				expect(articles).toBeSortedBy("article_id",{descending: true});
-			})
-		})
+					expect(articles).toBeSortedBy("article_id", { descending: true });
+				});
+		});
 
 		test("status:200, responds with an array of articles which match the topic provided by a query of topic", () => {
 			return request(app)
@@ -149,13 +158,13 @@ describe("/api/articles", () => {
 					expect(body.msg).toBe("invalid sorted_by criteria");
 				});
 		});
-		test("status: 400, bad request for invalid order criteria", () =>{
+		test("status: 400, bad request for invalid order criteria", () => {
 			return request(app)
-			.get("/api/articles?sorted_by=title&order=nogood")
-			.expect(400)
-			.then(({ body }) => {
-				expect(body.msg).toBe("invalid order criteria");
-			});
+				.get("/api/articles?sorted_by=title&order=nogood")
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("invalid order criteria");
+				});
 		});
 	});
 });
@@ -357,7 +366,7 @@ describe("/api/articles/:article_id/comments", () => {
 		});
 	});
 
-	describe("POST", ()=>{
+	describe("POST", () => {
 		test("status: 200, responds with the updated comment object", () => {
 			const ARTICLE_ID = 3;
 			const comment = { author: "rogersop", body: "Test Comment" };
@@ -377,29 +386,29 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 
-		test("status:400, missing required field when no comment body supplied", ()=>{
+		test("status:400, missing required field when no comment body supplied", () => {
 			const ARTICLE_ID = 3;
-			const comment = { author: "rogersop"};
+			const comment = { author: "rogersop" };
 			return request(app)
 				.post(`/api/articles/${ARTICLE_ID}/comments`)
 				.send(comment)
 				.expect(400)
-				.then(({body})=>{
-					expect(body.msg).toBe("missing required field")
-				})
-		})
+				.then(({ body }) => {
+					expect(body.msg).toBe("missing required field");
+				});
+		});
 
-		test("status:400, missing required field when no author supplied", ()=>{
+		test("status:400, missing required field when no author supplied", () => {
 			const ARTICLE_ID = 3;
-			const comment = { body: "Test Comment"};
+			const comment = { body: "Test Comment" };
 			return request(app)
 				.post(`/api/articles/${ARTICLE_ID}/comments`)
 				.send(comment)
 				.expect(400)
-				.then(({body})=>{
-					expect(body.msg).toBe("missing required field")
-				})
-		})
+				.then(({ body }) => {
+					expect(body.msg).toBe("missing required field");
+				});
+		});
 
 		test("status:400, bad request error when passed an invalid article_id", () => {
 			const ARTICLE_ID = "BadKey";
@@ -436,7 +445,7 @@ describe("/api/articles/:article_id/comments", () => {
 					expect(body.msg).toBe("not found");
 				});
 		});
-	})
+	});
 });
 describe("/api/users", () => {
 	describe("GET", () => {
@@ -458,6 +467,32 @@ describe("/api/users", () => {
 							})
 						);
 					});
+				});
+		});
+	});
+});
+
+describe("/api/comments/:comment_id", () => {
+	describe("DELETE", () => {
+		test("status:204, deletes the comment with comment_id", () => {
+			return request(app).delete("/api/comments/2").expect(204);
+		});
+
+		test("status:404, not found if comment not on database", () => {
+			return request(app)
+				.delete("/api/comments/999")
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("resource not found");
+				});
+		});
+
+		test("status:400, bad request found if comment_id is invalid", () => {
+			return request(app)
+				.delete("/api/comments/badId")
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
 				});
 		});
 	});

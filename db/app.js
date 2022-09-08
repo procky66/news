@@ -5,6 +5,7 @@ const {
 	getArticles,
 	getCommentsByArticleId,
 	postCommentOnArticle,
+	deleteCommentById,
 } = require("./controllers/articles");
 const { getTopics } = require("./controllers/topics");
 const { getUsers } = require("./controllers/users");
@@ -21,7 +22,10 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentOnArticle);
+
 app.patch("/api/articles/:article_id", patchArticleById);
+
+app.delete("/api/comments/:comment_id", deleteCommentById)
 
 app.use((error, request, response, next) => {
 	if (error.status && error.msg) {

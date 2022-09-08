@@ -1,8 +1,15 @@
 const db = require("../connection");
-const { fetchArticleById, updateArticleById, fetchArticles, fetchCommentsByArticleId, insertCommentOnArticle } = require("../models/articles");
+const {
+	fetchArticleById,
+	updateArticleById,
+	fetchArticles,
+	fetchCommentsByArticleId,
+	insertCommentOnArticle,
+	removeCommentById,
+} = require("../models/articles");
 
 exports.getArticles = (req, res, next) => {
-	const {topic,sorted_by, order} = req.query;
+	const { topic, sorted_by, order } = req.query;
 	fetchArticles(topic, sorted_by, order)
 		.then(articles => {
 			res.status(200).send({ articles });
@@ -30,13 +37,14 @@ exports.getCommentsByArticleId = (req, res, next) => {
 };
 
 exports.postCommentOnArticle = (req, res, next) => {
-	const {article_id} = req.params;
-	const {author, body} = req.body;
-	insertCommentOnArticle(article_id, author, body
-		).then(comment =>{
-			res.status(200).send({comment})
-		}).catch(err => next(err));
-}
+	const { article_id } = req.params;
+	const { author, body } = req.body;
+	insertCommentOnArticle(article_id, author, body)
+		.then(comment => {
+			res.status(200).send({ comment });
+		})
+		.catch(err => next(err));
+};
 
 exports.patchArticleById = (req, res, next) => {
 	const { article_id } = req.params;
@@ -45,6 +53,15 @@ exports.patchArticleById = (req, res, next) => {
 	updateArticleById(article_id, inc_votes)
 		.then(article => {
 			res.status(200).send({ article });
+		})
+		.catch(err => next(err));
+};
+
+exports.deleteCommentById = (req, res, next) => {
+	const { comment_id } = req.params;
+	removeCommentById(comment_id)
+		.then(() => {
+			res.status(204).send();
 		})
 		.catch(err => next(err));
 };
