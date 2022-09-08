@@ -1,5 +1,5 @@
 const db = require("../connection");
-const { fetchArticleById, updateArticleById, fetchArticles, fetchCommentsByArticleId } = require("../models/articles");
+const { fetchArticleById, updateArticleById, fetchArticles, fetchCommentsByArticleId, insertCommentOnArticle } = require("../models/articles");
 
 exports.getArticles = (req, res, next) => {
 	const {topic,sorted_by, order} = req.query;
@@ -29,10 +29,18 @@ exports.getCommentsByArticleId = (req, res, next) => {
 		.catch(err => next(err));
 };
 
+exports.postCommentOnArticle = (req, res, next) => {
+	const {article_id} = req.params;
+	const {author, body} = req.body;
+	insertCommentOnArticle(article_id, author, body
+		).then(comment =>{
+			res.status(200).send({comment})
+		}).catch(err => next(err));
+}
+
 exports.patchArticleById = (req, res, next) => {
 	const { article_id } = req.params;
-	const { body } = req;
-	const inc_votes = body.inc_votes;
+	const { inc_votes } = req.body;
 
 	updateArticleById(article_id, inc_votes)
 		.then(article => {

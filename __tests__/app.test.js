@@ -132,12 +132,12 @@ describe("/api/articles", () => {
 				});
 		});
 
-		test("status:404, topic not found for an invalid topic", () => {
+		test("status:404, resource not found for an invalid topic", () => {
 			return request(app)
 				.get("/api/articles?topic=nogood")
 				.expect(404)
 				.then(({ body }) => {
-					expect(body.msg).toBe("topic not found");
+					expect(body.msg).toBe("resource not found");
 				});
 		});
 
@@ -346,16 +346,97 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 
-		test("status:404, not found error when passed an valid article_id which is not found", () => {
+		test("status:404, resource not found error when passed a valid article_id which is not found", () => {
 			const ARTICLE_ID = 99;
 			return request(app)
 				.get(`/api/articles/${ARTICLE_ID}/comments`)
 				.expect(404)
 				.then(({ body }) => {
-					expect(body.msg).toBe("article not found");
+					expect(body.msg).toBe("resource not found");
 				});
 		});
 	});
+
+	describe("POST", ()=>{
+		test("status: 200, responds with the updated comment object", () => {
+			const ARTICLE_ID = 3;
+			const comment = { author: "rogersop", body: "Test Comment" };
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(200)
+				.then(({ body }) => {
+					expect(body.comment).toEqual({
+						comment_id: 19,
+						body: "Test Comment",
+						article_id: ARTICLE_ID,
+						author: "rogersop",
+						votes: 0,
+						created_at: expect.any(String),
+					});
+				});
+		});
+
+		test("status:400, missing required field when no comment body supplied", ()=>{
+			const ARTICLE_ID = 3;
+			const comment = { author: "rogersop"};
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(400)
+				.then(({body})=>{
+					expect(body.msg).toBe("missing required field")
+				})
+		})
+
+		test("status:400, missing required field when no author supplied", ()=>{
+			const ARTICLE_ID = 3;
+			const comment = { body: "Test Comment"};
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(400)
+				.then(({body})=>{
+					expect(body.msg).toBe("missing required field")
+				})
+		})
+
+		test("status:400, bad request error when passed an invalid article_id", () => {
+			const ARTICLE_ID = "BadKey";
+			const comment = { author: "rogersop", body: "Test Comment" };
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(400)
+				.then(({ body }) => {
+					expect(body.msg).toBe("bad request");
+				});
+		});
+
+		test("status:404, not found error when passed a valid article_id which is not found", () => {
+			const ARTICLE_ID = 99;
+			const comment = { author: "rogersop", body: "Test Comment" };
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("not found");
+				});
+		});
+
+		test("status:404, not found error when passed a valid article_id with an author who is not found", () => {
+			const ARTICLE_ID = 3;
+			const comment = { author: "xxxxx", body: "Test Comment" };
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("not found");
+				});
+		});
+	})
 });
 describe("/api/users", () => {
 	describe("GET", () => {

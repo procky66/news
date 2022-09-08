@@ -1,4 +1,5 @@
 const db = require("../connection");
+const { checkExists } = require("./models-utils");
 
 exports.fetchArticles = async (
 	topic,
@@ -38,16 +39,11 @@ exports.fetchArticles = async (
 	GROUP BY articles.article_id
 	${orderClause};`;
 
+
 	results = await db.query(queryStr, queryParams);
 
 	if (topic && results.rows.length === 0) {
-		const check = await db.query(`SELECT * FROM topics WHERE slug = $1;`, [
-			topic,
-		]);
-
-		if (check.rows.length === 0) {
-			return Promise.reject({ status: 404, msg: "topic not found" });
-		}
+		await checkExists("topics", "slug", topic);
 	}
 	return results.rows;
 };
@@ -70,23 +66,30 @@ exports.fetchArticleById = article_id => {
 };
 
 exports.fetchCommentsByArticleId = async article_id => {
-	results = await db
-		.query(
-			`SELECT * FROM comments 
+	const results = await db.query(
+		`SELECT * FROM comments 
 			WHERE article_id = $1;`,
-			[article_id]
-		)
-		.catch(err => Promise.reject(err));
+		[article_id]
+	);
 	if (results.rows.length === 0) {
-		const check = await db.query(
-			`SELECT * FROM articles WHERE article_id = $1;`,
-			[article_id]
-		);
-		if (check.rows.length === 0) {
-			return Promise.reject({ status: 404, msg: "article not found" });
-		}
+		await checkExists("articles", "article_id", article_id);
 	}
 	return results.rows;
+};
+
+exports.insertCommentOnArticle = async (article_id, author, body) => {
+	if (!body || !author){
+		return Promise.reject({ status: 400, msg: "missing required field" });
+	}
+
+	const results = await db.query(
+		"INSERT INTO comments (article_id,author,body) VALUES ($1,$2,$3) RETURNING *;",
+		[article_id, author, body]
+	);
+	if (results.rows.length === 0) {
+		await checkExists("articles", "article_id", article_id);
+	}
+	return results.rows[0];
 };
 
 exports.updateArticleById = (article_id, inc_votes) => {
