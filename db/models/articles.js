@@ -1,13 +1,28 @@
 const db = require("../connection");
 
-exports.fetchArticles = (topic, sorted_by = "created_at", order = "desc") => {
-	const validSortColumns = ["article_id","title","topic","author","body","created_at","votes"]
-	const validOrderTerms = ["asc", "desc"]
+exports.fetchArticles = async (
+	topic,
+	sorted_by = "created_at",
+	order = "desc"
+) => {
+	const validSortColumns = [
+		"article_id",
+		"title",
+		"topic",
+		"author",
+		"body",
+		"created_at",
+		"votes",
+	];
+	const validOrderTerms = ["asc", "desc"];
 
-	if(!validSortColumns.includes(sorted_by) || !validOrderTerms.includes(order)){
-		return Promise.reject({status:400, msg: "invalid sort criteria"})
+	if (!validSortColumns.includes(sorted_by)) {
+		return Promise.reject({ status: 400, msg: "invalid sorted_by criteria" });
 	}
-	const orderClause = `ORDER BY ${sorted_by} ${order}`
+	if (!validOrderTerms.includes(order)) {
+		return Promise.reject({ status: 400, msg: "invalid order criteria" });
+	}
+	const orderClause = `ORDER BY ${sorted_by} ${order}`;
 
 	let whereClause = "";
 	const queryParams = [];
@@ -23,18 +38,18 @@ exports.fetchArticles = (topic, sorted_by = "created_at", order = "desc") => {
 	GROUP BY articles.article_id
 	${orderClause};`;
 
-	return db.query(queryStr, queryParams).then(async results => {
-		if (topic && results.rows.length === 0) {
-			const check = await db.query(`SELECT * FROM topics WHERE slug = $1;`, [
-				topic,
-			]);
+	results = await db.query(queryStr, queryParams);
 
-			if (check.rows.length === 0) {
-				return Promise.reject({ status: 404, msg: "topic not found" });
-			}
+	if (topic && results.rows.length === 0) {
+		const check = await db.query(`SELECT * FROM topics WHERE slug = $1;`, [
+			topic,
+		]);
+
+		if (check.rows.length === 0) {
+			return Promise.reject({ status: 404, msg: "topic not found" });
 		}
-		return results.rows;
-	});
+	}
+	return results.rows;
 };
 
 exports.fetchArticleById = article_id => {

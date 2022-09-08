@@ -141,19 +141,20 @@ describe("/api/articles", () => {
 				});
 		});
 
-		test("status:400, bad request for invalid sort criteria", () => {
+		test("status:400, bad request for invalid sorted_by criteria", () => {
 			return request(app)
 				.get("/api/articles?sorted_by=nogood")
 				.expect(400)
 				.then(({ body }) => {
-					expect(body.msg).toBe("invalid sort criteria");
+					expect(body.msg).toBe("invalid sorted_by criteria");
 				});
-
+		});
+		test("status: 400, bad request for invalid order criteria", () =>{
 			return request(app)
 			.get("/api/articles?sorted_by=title&order=nogood")
 			.expect(400)
 			.then(({ body }) => {
-				expect(body.msg).toBe("invalid sort criteria");
+				expect(body.msg).toBe("invalid order criteria");
 			});
 		});
 	});
