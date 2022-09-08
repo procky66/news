@@ -11,6 +11,29 @@ afterAll(() => {
 
 beforeEach(() => seed(testData));
 
+describe("/", ()=>{
+	describe("GET", ()=>{
+		test("status:200, returns array of endpoints", ()=>{
+			return request(app)
+			.get("/")
+			.expect(200)
+			.then(({body}) =>{
+				expect(Object.keys(body.endpoints)).toEqual([
+					'GET /api',
+					'GET /api/topics',
+					'GET /api/users',
+					'GET /api/articles',
+					'GET /api/articles/:article_id',
+					'GET /api/articles/:article_id/comments',
+					'POST /api/articles/:article_id/comments',
+					"PATCH /api/articles/:article_id",
+					"DELETE /api/comments/:comment_id"
+				  ])
+			})
+		})
+	})
+})
+
 describe("/api/topics", () => {
 	describe("GET", () => {
 		test("status:200, responds with an array of topics", () => {
