@@ -330,6 +330,30 @@ describe("/api/articles/:article_id/comments", () => {
 				});
 		});
 
+		test("status:400, missing required field when no comment body supplied", ()=>{
+			const ARTICLE_ID = 3;
+			const comment = { author: "rogersop"};
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(400)
+				.then(({body})=>{
+					expect(body.msg).toBe("missing required field")
+				})
+		})
+
+		test("status:400, missing required field when no author supplied", ()=>{
+			const ARTICLE_ID = 3;
+			const comment = { body: "Test Comment"};
+			return request(app)
+				.post(`/api/articles/${ARTICLE_ID}/comments`)
+				.send(comment)
+				.expect(400)
+				.then(({body})=>{
+					expect(body.msg).toBe("missing required field")
+				})
+		})
+
 		test("status:400, bad request error when passed an invalid article_id", () => {
 			const ARTICLE_ID = "BadKey";
 			const comment = { author: "rogersop", body: "Test Comment" };

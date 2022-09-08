@@ -54,6 +54,10 @@ exports.fetchCommentsByArticleId = async article_id => {
 };
 
 exports.insertCommentOnArticle = async (article_id, author, body) => {
+	if (!body || !author){
+		return Promise.reject({ status: 400, msg: "missing required field" });
+	}
+
 	const results = await db.query(
 		"INSERT INTO comments (article_id,author,body) VALUES ($1,$2,$3) RETURNING *;",
 		[article_id, author, body]
