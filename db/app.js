@@ -7,11 +7,14 @@ const {
 	postCommentOnArticle,
 	deleteCommentById,
 } = require("./controllers/articles");
+const { getEndpoints } = require("./controllers/endpoints");
 const { getTopics } = require("./controllers/topics");
 const { getUsers } = require("./controllers/users");
 
 const app = express();
 app.use(express.json());
+
+app.get("/", getEndpoints)
 
 app.get("/api/topics", getTopics);
 
