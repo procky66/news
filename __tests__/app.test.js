@@ -18,7 +18,7 @@ describe("/", ()=>{
 			.get("/")
 			.expect(200)
 			.then(({body}) =>{
-				expect(Object.keys(body.endpoints)).toEqual([
+				expect(Object.keys(body.endpoints)).toStrictEqual([
 					'GET /api',
 					'GET /api/topics',
 					'GET /api/users',
@@ -29,6 +29,8 @@ describe("/", ()=>{
 					"PATCH /api/articles/:article_id",
 					"DELETE /api/comments/:comment_id"
 				  ])
+
+				  expect(body.endpoints["GET /api/articles"].queries).toEqual(["topic", "sorted_by", "order"])
 			})
 		})
 	})
