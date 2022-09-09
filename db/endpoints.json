@@ -92,7 +92,7 @@
 		"description": "increments the votes on an individual article",
 		"queries": [],
 		"exampleBody": {
-			"votes": 1
+			"inc_votes": 1
 		},
 		"exampleResponse": {
 			"article": {
