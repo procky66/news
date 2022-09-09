@@ -1,34 +1,13 @@
 const express = require("express");
-const {
-	getArticleById,
-	patchArticleById,
-	getArticles,
-	getCommentsByArticleId,
-	postCommentOnArticle,
-	deleteCommentById,
-} = require("./controllers/articles");
-const { getEndpoints } = require("./controllers/endpoints");
-const { getTopics } = require("./controllers/topics");
-const { getUsers } = require("./controllers/users");
+
+const router = require("./routes/router");
+const apiRouter = require("./routes/api.router");
 
 const app = express();
 app.use(express.json());
 
-app.get("/", getEndpoints)
-
-app.get("/api/topics", getTopics);
-
-app.get("/api/users", getUsers);
-
-app.get("/api/articles", getArticles);
-
-app.get("/api/articles/:article_id", getArticleById);
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-app.post("/api/articles/:article_id/comments", postCommentOnArticle);
-
-app.patch("/api/articles/:article_id", patchArticleById);
-
-app.delete("/api/comments/:comment_id", deleteCommentById)
+app.use("/", router);
+app.use("/api", apiRouter);
 
 app.use((error, request, response, next) => {
 	if (error.status && error.msg) {
@@ -37,9 +16,9 @@ app.use((error, request, response, next) => {
 });
 
 app.use((error, request, response, next) => {
-	if ((error.code === "22P02" || error.code === "23502")) {
+	if (error.code === "22P02" || error.code === "23502") {
 		response.status(400).send({ msg: "bad request" });
-	} else if ((error.code === "23503")) {
+	} else if (error.code === "23503") {
 		response.status(404).send({ msg: "not found" });
 	} else next(error);
 });
