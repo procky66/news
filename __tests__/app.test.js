@@ -11,30 +11,34 @@ afterAll(() => {
 
 beforeEach(() => seed(testData));
 
-describe("/", ()=>{
-	describe("GET", ()=>{
-		test("status:200, returns array of endpoints", ()=>{
+describe("/", () => {
+	describe("GET", () => {
+		test("status:200, returns array of endpoints", () => {
 			return request(app)
-			.get("/")
-			.expect(200)
-			.then(({body}) =>{
-				expect(Object.keys(body.endpoints)).toStrictEqual([
-					'GET /api',
-					'GET /api/topics',
-					'GET /api/users',
-					'GET /api/articles',
-					'GET /api/articles/:article_id',
-					'GET /api/articles/:article_id/comments',
-					'POST /api/articles/:article_id/comments',
-					"PATCH /api/articles/:article_id",
-					"DELETE /api/comments/:comment_id"
-				  ])
+				.get("/")
+				.expect(200)
+				.then(({ body }) => {
+					expect(Object.keys(body.endpoints)).toStrictEqual([
+						"GET /api",
+						"GET /api/topics",
+						"GET /api/users",
+						"GET /api/articles",
+						"GET /api/articles/:article_id",
+						"GET /api/articles/:article_id/comments",
+						"POST /api/articles/:article_id/comments",
+						"PATCH /api/articles/:article_id",
+						"DELETE /api/comments/:comment_id",
+					]);
 
-				  expect(body.endpoints["GET /api/articles"].queries).toEqual(["topic", "sorted_by", "order"])
-			})
-		})
-	})
-})
+					expect(body.endpoints["GET /api/articles"].queries).toEqual([
+						"topic",
+						"sorted_by",
+						"order",
+					]);
+				});
+		});
+	});
+});
 
 describe("/api/topics", () => {
 	describe("GET", () => {
@@ -472,6 +476,7 @@ describe("/api/articles/:article_id/comments", () => {
 		});
 	});
 });
+
 describe("/api/users", () => {
 	describe("GET", () => {
 		test("status:200, responds with an array of users", () => {
@@ -492,6 +497,34 @@ describe("/api/users", () => {
 							})
 						);
 					});
+				});
+		});
+	});
+});
+
+describe("/api/users/:username", () => {
+	describe("GET", () => {
+		test("status:200, responds with a single matching user", () => {
+			return request(app)
+				.get("/api/users/butter_bridge")
+				.expect(200)
+				.then(response => {
+					const { body } = response;
+					expect(body.user).toEqual({
+						username: "butter_bridge",
+						name: "jonny",
+						avatar_url:
+							"https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+					});
+				});
+		});
+
+		test("status:404, not found if username not on database", () => {
+			return request(app)
+				.get("/api/users/999")
+				.expect(404)
+				.then(({ body }) => {
+					expect(body.msg).toBe("user not found");
 				});
 		});
 	});
